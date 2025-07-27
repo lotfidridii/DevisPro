@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Clients et Devis - Gestionnaire de Services à Domicile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>Gestion Clients et Devis</h1>
+            <div class="header-actions">
+                <a href="/dashboard.html" class="btn btn-secondary" title="Retour au Tableau de Bord">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                    </svg>
+                    Tableau de Bord
+                </a>
+                <button id="logout-button" class="btn btn-danger" title="Déconnexion">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                    </svg>
+                    Déconnexion
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Client Management Section -->
+            <div class="card">
+                <h2>Clients</h2>
+                
+                <!-- Search and Filter Controls -->
+                <div class="table-controls">
+                    <div class="search-container">
+                        <div class="search-box">
+                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+                            <input type="text" id="clients-search" placeholder="Rechercher des clients..." class="search-input">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-container">
+                        <select id="clients-sort" class="filter-select">
+                            <option value="name-asc">Trier par Nom (A-Z)</option>
+                            <option value="name-desc">Trier par Nom (Z-A)</option>
+                            <option value="email-asc">Trier par E-mail (A-Z)</option>
+                            <option value="email-desc">Trier par E-mail (Z-A)</option>
+                        </select>
+                        
+                        <button id="clear-clients-filters" class="btn btn-secondary btn-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Adresse</th>
+                            <th>Téléphone</th>
+                            <th>E-mail</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                        <tbody id="clients-tbody">
+                            <!-- Client rows will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                <button id="add-client-btn" class="btn mt-lg">Ajouter un Nouveau Client</button>
+            </div>
+
+            <!-- Client Form Modal (Hidden by default) -->
+            <div id="client-form-modal" class="modal" style="display:none;">
+                <div class="modal-content card">
+                    <span class="close-button">&times;</span>
+                    <h2 id="client-form-title">Ajouter un Client</h2>
+                    <form id="client-form">
+                        <input type="hidden" id="client-id">
+                        <div class="form-group">
+                            <label for="name">Nom</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="title">Titre (ex: Directeur Général)</label>
+                            <input type="text" id="title" name="title">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Adresse</label>
+                            <input type="text" id="address" name="address" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Téléphone</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">E-mail</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn">Enregistrer le Client</button>
+                            <button type="button" id="cancel-client-form" class="btn btn-secondary">Annuler</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Quote/Invoice Generator Section -->
+            <div class="card">
+                <h2 id="quote-form-title">Générateur de Devis / Factures</h2>
+                <form id="quote-form">
+                    <div class="quote-form-header">
+                        <div class="form-group">
+                            <label for="quote-client">Client</label>
+                            <select id="quote-client" name="client_id" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quote-type">Type de Document</label>
+                            <select id="quote-type" name="quote-type">
+                                <option value="quote">Devis</option>
+                                <option value="invoice">Facture</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="quote-items-container">
+                        <!-- JS will add items here -->
+                    </div>
+                    
+                    <div class="form-actions" style="margin: 20px 0;">
+                        <button type="button" id="add-item-btn" class="btn btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                            </svg>
+                            Ajouter un Article
+                        </button>
+                    </div>
+                    
+                    <hr style="margin: 20px 0;">
+
+                    <!-- Dynamic Aides Section -->
+                    <div class="aides-section">
+                        <div class="section-header">
+                            <h3>Aides et Réductions</h3>
+                            <button type="button" id="add-aide-btn" class="btn btn-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                                </svg>
+                                Ajouter une aide
+                            </button>
+                        </div>
+                        <div id="aides-container">
+                            <!-- Dynamic aides will be inserted here -->
+                        </div>
+                    </div>
+
+                    <hr style="margin: 20px 0;">
+
+                    <h3>Informations de Pied de Page (Optionnel)</h3>
+                    <div class="form-group">
+                        <label for="down_payment_text">Acompte à la signature</label>
+                        <input type="text" id="down_payment_text" name="down_payment_text" placeholder="Ex: 30% d'acompte à la signature">
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="iban">IBAN</label>
+                            <input type="text" id="iban" name="iban" placeholder="FR76...">
+                        </div>
+                        <div class="form-group">
+                            <label for="installer_ref">Référence installateur</label>
+                            <input type="text" id="installer_ref" name="installer_ref" placeholder="Ex: PEDF10867162">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="capacity_attestation_no">N° Attestation de capacité</label>
+                            <input type="text" id="capacity_attestation_no" name="capacity_attestation_no" placeholder="Ex: 5008650">
+                        </div>
+                        <div class="form-group">
+                            <label for="civil_liability_insurance">Assurance responsabilité civile</label>
+                            <input type="text" id="civil_liability_insurance" name="civil_liability_insurance" placeholder="Ex: Etik assurance n°sv7501804le08267">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="footer_notes">Notes de bas de page additionnelles</label>
+                        <textarea id="footer_notes" name="footer_notes" rows="3" placeholder="Toute information supplémentaire à afficher en bas de page du devis/facture"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="add-item-btn" class="btn btn-secondary">+ Ajouter un Article</button>
+                        <button type="submit" class="btn">Enregistrer le Devis</button>
+                    </div>
+                </form>
+            </div>
+
+             <!-- Recent Quotes & Invoices Section -->
+            <div class="card">
+                <h2>Devis et Factures Récents</h2>
+                
+                <!-- Search and Filter Controls -->
+                <div class="table-controls">
+                    <div class="search-container">
+                        <div class="search-box">
+                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+                            <input type="text" id="quotes-search" placeholder="Rechercher devis et factures..." class="search-input">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-container">
+                        <select id="quotes-type-filter" class="filter-select">
+                            <option value="all">Tous les Types</option>
+                            <option value="quote">Devis Seulement</option>
+                            <option value="invoice">Factures Seulement</option>
+                        </select>
+                        
+                        <select id="quotes-sort" class="filter-select">
+                            <option value="date-desc">Trier par Date (Plus Récent)</option>
+                            <option value="date-asc">Trier par Date (Plus Ancien)</option>
+                            <option value="client-asc">Trier par Client (A-Z)</option>
+                            <option value="client-desc">Trier par Client (Z-A)</option>
+                            <option value="total-desc">Trier par Total (Haut-Bas)</option>
+                            <option value="total-asc">Trier par Total (Bas-Haut)</option>
+                        </select>                        
+                        <button id="clear-quotes-filters" class="btn btn-secondary btn-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Client</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Total TTC</th>
+                            <th class="actions-header">Actions</th>
+                        </tr>
+                    </thead>
+                        <tbody id="quotes-tbody">
+                            <!-- Quote rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="js/clients.js"></script>
+    <!-- Custom Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - Gestionnaire de Services à Domicile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>Tableau de Bord</h1>
+            <div class="header-actions">
+                <button id="logout-button" class="btn btn-danger" title="Déconnexion">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                    </svg>
+                    Déconnexion
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <p class="text-muted">Bienvenue ! Votre rôle est : <strong id="user-role"></strong></p>
+
+            <div id="super-admin-section" class="card" style="display: none;">
+                <h2>Gestion des Entreprises</h2>
+                <form id="create-company-form">
+                    <h3>Créer une Nouvelle Entreprise</h3>
+                    <div class="form-group">
+                        <label for="company-name">Nom de l'Entreprise</label>
+                        <input type="text" id="company-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company-phone">Numéro de Téléphone</label>
+                        <input type="tel" id="company-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company-email">E-mail</label>
+                        <input type="email" id="company-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company-website">Site Web</label>
+                        <input type="url" id="company-website" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company-address">Adresse</label>
+                        <input type="text" id="company-address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="company-siret">N° SIREN/SIRET</label>
+                        <input type="text" id="company-siret">
+                    </div>
+                    <div class="form-group">
+                        <label for="company-logo">Logo de l'Entreprise (optionnel)</label>
+                        <input type="file" id="company-logo" name="logo" accept="image/*">
+                    </div>
+                    
+                    <h4>Couleurs du Thème pour les Documents de Devis</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="theme-primary-color">Couleur Principale</label>
+                            <input type="color" id="theme-primary-color" value="#2563eb" title="Utilisée pour les en-têtes et éléments principaux">
+                        </div>
+                        <div class="form-group">
+                            <label for="theme-secondary-color">Couleur Secondaire</label>
+                            <input type="color" id="theme-secondary-color" value="#64748b" title="Utilisée pour les bordures et éléments subtils">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="theme-accent-color">Couleur d'Accent</label>
+                            <input type="color" id="theme-accent-color" value="#059669" title="Utilisée pour les mises en évidence et totaux">
+                        </div>
+                        <div class="form-group">
+                            <label for="theme-text-color">Couleur du Texte</label>
+                            <input type="color" id="theme-text-color" value="#1f2937" title="Couleur principale du texte">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Créer l'Entreprise</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-edit-btn" onclick="resetCompanyForm()" style="display: none;">Annuler la Modification</button>
+                    </div>
+                </form>
+                <hr class="mt-lg">
+                <h3>Entreprises Existantes</h3>
+                <ul id="companies-list"></ul>
+                <hr class="mt-lg">
+                <a href="/users.html" class="btn">Gestion des Utilisateurs</a>
+            </div>
+
+            <div id="admin-section" style="display: none;">
+                <div class="card">
+                    <h2>Clients et Devis</h2>
+                    <p>Gérez vos clients et créez de nouveaux devis ou factures.</p>
+                    <a href="/clients.html" class="btn mt-lg">Aller à la Gestion</a>
+                </div>
+    
+                <div class="card">
+                <h2>Devis et Factures Récents</h2>
+                
+                <!-- Search and Filter Controls -->
+                <div class="table-controls">
+                    <div class="search-container">
+                        <div class="search-box">
+                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+                            <input type="text" id="dashboard-quotes-search" placeholder="Rechercher devis et factures..." class="search-input">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-container">
+                        <select id="dashboard-quotes-type-filter" class="filter-select">
+                            <option value="all">Tous les Types</option>
+                            <option value="quote">Devis Seulement</option>
+                            <option value="invoice">Factures Seulement</option>
+                        </select>
+                        
+                        <select id="dashboard-quotes-sort" class="filter-select">
+                            <option value="date-desc">Trier par Date (Plus Récent)</option>
+                            <option value="date-asc">Trier par Date (Plus Ancien)</option>
+                            <option value="client-asc">Trier par Client (A-Z)</option>
+                            <option value="client-desc">Trier par Client (Z-A)</option>
+                            <option value="total-desc">Trier par Total (Haut-Bas)</option>
+                            <option value="total-asc">Trier par Total (Bas-Haut)</option>
+                        </select>
+                        
+                        <button id="clear-dashboard-quotes-filters" class="btn btn-secondary btn-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                            Effacer
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Client</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Total TTC</th>
+                            <th class="actions-header">Actions</th>
+                        </tr>
+                    </thead>
+                        <tbody id="quotes-tbody">
+                            <!-- Quote rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+    <!-- Custom Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
+</body>
+</html>
